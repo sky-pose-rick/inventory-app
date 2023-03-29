@@ -1,0 +1,12 @@
+extends layout 
+
+block content 
+  h1 Items in #{category.name}
+
+  ul 
+    each item in item_list 
+      a(href=item.url) #{item.name} 
+      span #{item.price}
+
+    else 
+      li There are no items.

@@ -1,3 +1,6 @@
+const Category = require('../models/category');
+const Item = require('../models/item');
+
 // index
 exports.index = (req, res, next) => {
   res.redirect('/inventory/categories');
@@ -5,7 +8,16 @@ exports.index = (req, res, next) => {
 
 // all categories
 exports.category_list = (req, res, next) => {
-  res.send('Not implemented');
+  Category.find()
+    .sort([['name', 'ascending']])
+    .exec()
+    .then((categoryList) => {
+      res.render('category_list', {
+        title: 'Departments',
+        category_list: categoryList,
+      });
+    })
+    .catch((err) => next(err));
 };
 
 // specific category

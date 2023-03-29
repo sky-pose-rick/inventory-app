@@ -1,0 +1,12 @@
+extends layout 
+
+block content 
+  h1 Choose a department
+
+  ul 
+    each category in category_list 
+      a(href=category.item_list_url) #{category.name} 
+      a(href=category.detail_url) More Details
+
+    else 
+      li There are no departments.

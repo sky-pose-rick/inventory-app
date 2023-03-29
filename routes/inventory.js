@@ -5,6 +5,8 @@ const router = express.Router();
 const categoryController = require('../controllers/categoryController');
 const itemController = require('../controllers/itemController');
 
+// routes without parameters must come before routes with parameters
+
 // category routes
 router.get('/', categoryController.index);
 
