@@ -1,0 +1,8 @@
+extends layout 
+
+block content 
+  h1= title 
+  p Name: #{category.name}
+  p Description: #{category.description}
+  br
+  a(href=`/inventory/item/${category._id}/create`) Create New Item

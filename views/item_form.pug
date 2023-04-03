@@ -1,0 +1,29 @@
+extends layout 
+
+block content 
+  h1= title 
+
+  form(method='POST' action='')
+    label Name: 
+      input(type='text' placeholder='Name of item' required='true' name='name' value=(item===undefined ? '': item.name))
+    label Descritpion
+      textarea(type='textarea' placeholder='Desciption of item' required='true' name='description' value=(item===undefined ? '': item.description))
+    label Category 
+      select(type='select' placeholder='Select Category' name='category' required='true')
+        - categories.sort(function(a, b) {let textA = a.name.toUpperCase(); let textB = b.name.toUpperCase(); return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;});
+        for cat in categories 
+          if category
+            option(value=cat._id selected=(cat._id.toString() === category ? 'selected' : false)) #{cat.name}
+          else if  item 
+            option(value=cat._id selected=(cat._id.toString() === book.category._id.toString() ? 'selected' : false)) #{cat.name}
+          else 
+            option(value=cat._id) #{cat.name}
+    label Price: 
+      input(type='number' required='true' name='price' step='0.01' min='0' value=(item===undefined ? '': item.price))
+    label Number in Stock: 
+      input(type='number' required='true' name='number_in_stock' min='0' value=(item===undefined ? '': item.price))
+    button(type='submit') Submit
+  if errors 
+    ul 
+      for error in errors 
+        li=error.msg

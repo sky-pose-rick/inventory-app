@@ -22,7 +22,15 @@ exports.category_list = (req, res, next) => {
 
 // specific category
 exports.category_detail = (req, res, next) => {
-  res.send('Not implemented');
+  // find category
+  Category.findOne({ _id: req.params.id })
+    .then((category) => {
+      res.render('category_detail', {
+        title: `${category.name}: Details`,
+        category,
+      });
+    })
+    .catch((err) => next(err));
 };
 
 // display form to create category
