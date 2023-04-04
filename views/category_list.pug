@@ -5,8 +5,10 @@ block content
 
   ul 
     each category in category_list 
-      a(href=category.item_list_url) #{category.name} 
-      a(href=category.detail_url) More Details
+      li
+        a(href=category.item_list_url) #{category.name} 
+        a(href=category.detail_url) More Details
 
     else 
       li There are no departments.
+  a(href='/inventory/category/create') Create new department

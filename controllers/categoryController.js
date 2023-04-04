@@ -1,3 +1,4 @@
+const { body, validationResult } = require('express-validator');
 const Category = require('../models/category');
 const Item = require('../models/item');
 
@@ -35,13 +36,51 @@ exports.category_detail = (req, res, next) => {
 
 // display form to create category
 exports.category_create_get = (req, res, next) => {
-  res.send('Not implemented');
+  res.render('category_form', {
+    title: 'Create Category',
+  });
 };
 
 // handle category create form
-exports.category_create_post = (req, res, next) => {
-  res.send('Not implemented');
-};
+exports.category_create_post = [
+  body('name', 'Name must not be empty.')
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  body('description', 'Description must not be empty')
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    const category = new Category({
+      name: req.body.name,
+      description: req.body.description,
+    });
+
+    if (!errors.isEmpty()) {
+      // has errors
+      res.render('category_form', {
+        title: 'Create Category',
+        category,
+        errors: errors.array(),
+      });
+    }
+    // check if category already exists
+    Category.findOne({ name: req.body.name })
+      .then((existingCategory) => {
+        if (existingCategory) {
+          res.redirect(existingCategory.detail_url);
+        } else {
+          // data valid and not a duplicate
+          category.save()
+            .then(() => res.redirect(category.detail_url))
+            .catch((err) => next(err));
+        }
+      })
+      .catch((err) => next(err));
+  },
+];
 
 // display category delete form
 exports.category_delete_get = (req, res, next) => {
