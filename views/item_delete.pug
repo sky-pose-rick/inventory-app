@@ -1,0 +1,14 @@
+extends layout 
+
+block content 
+  h1= title 
+
+  p Name: #{item.name}
+  p Description: #{item.description}
+
+  form(method='POST' action='')
+    button(type='submit') Confirm Item Deletion
+  if errors 
+    ul 
+      for error in errors 
+        li=error.msg

@@ -129,12 +129,21 @@ exports.item_create_post = [ // an array of validators and functions
 
 // display item delete form
 exports.item_delete_get = (req, res, next) => {
-  res.send('Not implemented');
+  Item.findById(req.params.id)
+    .then((item) => {
+      res.render('item_delete', {
+        title: 'Delete Item',
+        item,
+      });
+    })
+    .catch((err) => next(err));
 };
 
 // handle item delete form
 exports.item_delete_post = (req, res, next) => {
-  res.send('Not implemented');
+  Item.findByIdAndDelete(req.params.id)
+    .then(() => res.redirect('/inventory'))
+    .catch((err) => next(err));
 };
 
 // display item update form

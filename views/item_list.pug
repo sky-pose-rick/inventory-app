@@ -3,10 +3,16 @@ extends layout
 block content 
   h1 Items in #{category.name}
 
+  a(href=category.detail_url) About Department
+
   ul 
     each item in item_list 
-      a(href=item.url) #{item.name} 
-      span #{item.price}
+      li
+        a(href=item.url) #{item.name} 
+        span #{item.price}
 
     else 
       li There are no items.
+
+  p
+    a(href=`/inventory/item/${category._id}/create`) Create New Item

@@ -8,3 +8,6 @@ block content
     a(href=item.category.item_list_url) #{item.category.name}
   p Price: #{item.price}
   p Number in Stock: #{item.number_in_stock}
+
+  p 
+    a(href=item.url+'/delete') Delete Item

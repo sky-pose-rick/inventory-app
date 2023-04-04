@@ -71,12 +71,12 @@ exports.category_create_post = [
       .then((existingCategory) => {
         if (existingCategory) {
           res.redirect(existingCategory.detail_url);
-        } else {
-          // data valid and not a duplicate
-          category.save()
-            .then(() => res.redirect(category.detail_url))
-            .catch((err) => next(err));
+          return;
         }
+        // data valid and not a duplicate
+        category.save()
+          .then(() => res.redirect(category.detail_url))
+          .catch((err) => next(err));
       })
       .catch((err) => next(err));
   },
@@ -84,12 +84,45 @@ exports.category_create_post = [
 
 // display category delete form
 exports.category_delete_get = (req, res, next) => {
-  res.send('Not implemented');
+  Category.findById(req.params.id)
+    .then((category) => {
+      Item.find({ category: category._id })
+        .then((items) => {
+          res.render('category_delete', {
+            title: 'Delete Item',
+            category,
+            items,
+          });
+        })
+        .catch((err) => next(err));
+    })
+    .catch((err) => next(err));
 };
 
 // handle category delete form
 exports.category_delete_post = (req, res, next) => {
-  res.send('Not implemented');
+  Item.find({ category: req.params.id })
+    .then((items) => {
+      if (items.length > 0) {
+        // all items not yet deleted
+        Category.findById(req.params.id)
+          .then((category) => {
+            res.render('category_delete', {
+              title: 'Delete Item',
+              category,
+              items,
+            });
+          })
+          .catch((err) => next(err));
+        return;
+      }
+      Category.findByIdAndDelete(req.params.id)
+        .then(() => {
+          res.redirect('/inventory');
+        })
+        .catch((err) => next(err));
+    })
+    .catch((err) => next(err));
 };
 
 // display category update form

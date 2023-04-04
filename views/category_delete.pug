@@ -1,0 +1,21 @@
+extends layout 
+
+block content 
+  h1= title 
+
+  p Name: #{category.name}
+  p Description: #{category.description}
+
+  if (items.length > 0) 
+    p This categoy has items. Delete those first.
+    ul 
+      for item in items
+        li 
+          a(href=item.url) #{item.name}
+  else
+    form(method='POST' action='')
+      button(type='submit') Confirm Category Deletion
+  if errors 
+    ul 
+      for error in errors 
+        li=error.msg

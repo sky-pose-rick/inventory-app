@@ -4,5 +4,9 @@ block content
   h1= title 
   p Name: #{category.name}
   p Description: #{category.description}
-  br
-  a(href=`/inventory/item/${category._id}/create`) Create New Item
+  p 
+    a(href=category.item_list_url) See items
+  p
+    a(href=`/inventory/item/${category._id}/create`) Create New Item
+  p
+    a(href=category.detail_url+'/delete') Delete Category
