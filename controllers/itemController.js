@@ -2,6 +2,35 @@ const { body, validationResult } = require('express-validator');
 const Category = require('../models/category');
 const Item = require('../models/item');
 
+const itemFormValidators = [
+  body('name', 'Name must not be empty.')
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  body('description', 'Description must not be empty')
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  body('category', 'Category must not be empty')
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  body('price', 'Price must not be empty')
+    .trim()
+    .isLength({ min: 1 })
+    .escape()
+    .isDecimal({ decimal_digits: 2 })
+    .withMessage('Price be a decimal number.')
+    .isFloat({ min: 0 })
+    .withMessage('Price must be not be negative.'),
+  body('number_in_stock', 'Number in stock must not be empty')
+    .trim()
+    .isLength({ min: 1 })
+    .escape()
+    .isInt({ min: 0 })
+    .withMessage('Number in stock must not be negative.'),
+];
+
 // items in category
 exports.item_list = (req, res, next) => {
   // find category
@@ -30,6 +59,12 @@ exports.item_detail = (req, res, next) => {
     .populate('category')
     .exec()
     .then((item) => {
+      if (item == null) {
+        const notFound = new Error('Item not found');
+        notFound.status = 404;
+        return next(notFound);
+      }
+
       res.render('item_detail', {
         title: `${item.name}: Details`,
         item,
@@ -65,32 +100,7 @@ exports.item_create_get = (req, res, next) => {
 // handle item create form
 exports.item_create_post = [ // an array of validators and functions
   // validate and sanitize fields
-  body('name', 'Name must not be empty.')
-    .trim()
-    .isLength({ min: 1 })
-    .escape(),
-  body('description', 'Description must not be empty')
-    .trim()
-    .isLength({ min: 1 })
-    .escape(),
-  body('category', 'Category must not be empty')
-    .trim()
-    .isLength({ min: 1 })
-    .escape(),
-  body('price', 'Price must not be empty')
-    .trim()
-    .isLength({ min: 1 })
-    .escape()
-    .isDecimal({ decimal_digits: 2 })
-    .withMessage('Price be a decimal number.')
-    .isFloat({ min: 0 })
-    .withMessage('Price must be not be negative.'),
-  body('number_in_stock', 'Number in stock must not be empty')
-    .trim()
-    .isLength({ min: 1 })
-    .escape()
-    .isInt({ min: 0 })
-    .withMessage('Number in stock must not be negative.'),
+  [...itemFormValidators],
   // TODO: image and password for image
   (req, res, next) => {
     const errors = validationResult(req);
@@ -122,7 +132,7 @@ exports.item_create_post = [ // an array of validators and functions
 
     // data validated
     item.save()
-      .then(() => res.redirect(item.url))
+      .then((newItem) => res.redirect(newItem.url))
       .catch((err) => next(err));
   },
 ];
@@ -148,10 +158,63 @@ exports.item_delete_post = (req, res, next) => {
 
 // display item update form
 exports.item_update_get = (req, res, next) => {
-  res.send('Not implemented');
+  Item.findById(req.params.id)
+    .then((item) => {
+      if (item == null) {
+        const notFound = new Error('Item not found');
+        notFound.status = 404;
+        return next(notFound);
+      }
+      Category.find()
+        .then((categories) => {
+          res.render('item_form', {
+            title: 'Update Item',
+            categories,
+            item,
+          });
+        })
+        .catch((err) => next(err));
+    })
+    .catch((err) => next(err));
 };
 
 // handle item update form
-exports.item_update_post = (req, res, next) => {
-  res.send('Not implemented');
-};
+exports.item_update_post = [ // an array of validators and functions
+// validate and sanitize fields
+  [...itemFormValidators],
+  // TODO: image and password for image
+  (req, res, next) => {
+    const errors = validationResult(req);
+    const priceCents = req.body.price * 100;
+
+    // use the escaped/trimmed data
+    const item = new Item({
+      name: req.body.name,
+      description: req.body.description,
+      category: req.body.category,
+      price_cents: priceCents,
+      number_in_stock: req.body.number_in_stock,
+      _id: req.params.id,
+    });
+
+    if (!errors.isEmpty()) {
+    // has errors, re-render required
+    // display all categories as options
+      Category.find()
+        .then((categories) => {
+          res.render('item_form', {
+            title: 'Update Item',
+            categories,
+            item,
+            errors: errors.array(),
+          });
+        })
+        .catch((err) => next(err));
+    }
+
+    // data validated
+    Item.findByIdAndUpdate(req.params.id, item)
+      .then((updatedItem) => res.redirect(updatedItem.url))
+      .catch((err) => next(err));
+  },
+];

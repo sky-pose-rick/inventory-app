@@ -7,7 +7,7 @@ block content
     label Name: 
       input(type='text' placeholder='Name of category' required='true' name='name' value=(category===undefined ? '': category.name))
     label Descritpion
-      textarea(type='textarea' placeholder='Desciption of category' required='true' name='description' value=(category===undefined ? '': category.description))
+      textarea(type='textarea' placeholder='Desciption of category' required='true' name='description') #{category===undefined ? '': category.description}
     button(type='submit') Submit
   if errors 
     ul 

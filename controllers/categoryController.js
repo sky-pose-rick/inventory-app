@@ -2,6 +2,16 @@ const { body, validationResult } = require('express-validator');
 const Category = require('../models/category');
 const Item = require('../models/item');
 
+const categoryFormValidators = [body('name', 'Name must not be empty.')
+  .trim()
+  .isLength({ min: 1 })
+  .escape(),
+body('description', 'Description must not be empty')
+  .trim()
+  .isLength({ min: 1 })
+  .escape(),
+];
+
 // index
 exports.index = (req, res, next) => {
   res.redirect('/inventory/categories');
@@ -26,6 +36,12 @@ exports.category_detail = (req, res, next) => {
   // find category
   Category.findOne({ _id: req.params.id })
     .then((category) => {
+      if (category == null) {
+        const notFound = new Error('Category not found');
+        notFound.status = 404;
+        return next(notFound);
+      }
+
       res.render('category_detail', {
         title: `${category.name}: Details`,
         category,
@@ -43,14 +59,7 @@ exports.category_create_get = (req, res, next) => {
 
 // handle category create form
 exports.category_create_post = [
-  body('name', 'Name must not be empty.')
-    .trim()
-    .isLength({ min: 1 })
-    .escape(),
-  body('description', 'Description must not be empty')
-    .trim()
-    .isLength({ min: 1 })
-    .escape(),
+  [...categoryFormValidators],
   (req, res, next) => {
     const errors = validationResult(req);
     const category = new Category({
@@ -75,7 +84,7 @@ exports.category_create_post = [
         }
         // data valid and not a duplicate
         category.save()
-          .then(() => res.redirect(category.detail_url))
+          .then((newCategory) => res.redirect(newCategory.detail_url))
           .catch((err) => next(err));
       })
       .catch((err) => next(err));
@@ -127,10 +136,43 @@ exports.category_delete_post = (req, res, next) => {
 
 // display category update form
 exports.category_update_get = (req, res, next) => {
-  res.send('Not implemented');
+  Category.findById(req.params.id)
+    .then((category) => {
+      if (category == null) {
+        const notFound = new Error('Category not found');
+        notFound.status = 404;
+        return next(notFound);
+      }
+      res.render('category_form', {
+        title: 'Update Category',
+        category,
+      });
+    })
+    .catch((err) => next(err));
 };
 
 // handle category update form
-exports.category_update_post = (req, res, next) => {
-  res.send('Not implemented');
-};
+exports.category_update_post = [
+  [...categoryFormValidators],
+  (req, res, next) => {
+    const errors = validationResult(req);
+    const category = new Category({
+      name: req.body.name,
+      description: req.body.description,
+      _id: req.params.id,
+    });
+
+    if (!errors.isEmpty()) {
+      // has errors
+      res.render('category_form', {
+        title: 'Update Category',
+        category,
+        errors: errors.array(),
+      });
+    }
+
+    Category.findByIdAndUpdate(req.params.id, category)
+      .then((updatedCategory) => res.redirect(updatedCategory.detail_url))
+      .catch((err) => next(err));
+  },
+];
