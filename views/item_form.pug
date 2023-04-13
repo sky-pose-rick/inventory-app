@@ -3,7 +3,10 @@ extends layout
 block content 
   h1= title 
 
-  form(method='POST' action='')
+  if item 
+    img(src=`/data/uploads/${item.image_path}` alt='no icon')
+
+  form(method='POST' action='' enctype='multipart/form-data')
     label Name: 
       input(type='text' placeholder='Name of item' required='true' name='name' value=(item===undefined ? '': item.name))
     label Descritpion
@@ -22,6 +25,10 @@ block content
       input(type='number' required='true' name='price' step='0.01' min='0' value=(item===undefined ? '': item.price_cents / 100))
     label Number in Stock: 
       input(type='number' required='true' name='number_in_stock' min='0' value=(item===undefined ? '': item.number_in_stock))
+    label Icon Password:
+      input(type='text' name='file_password')
+    label Icon: 
+      input(type='file' name='uploaded_file')
     button(type='submit') Submit
   if errors 
     ul 

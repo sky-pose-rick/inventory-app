@@ -1,4 +1,6 @@
 const { body, validationResult } = require('express-validator');
+const multer = require('multer');
+
 const Category = require('../models/category');
 const Item = require('../models/item');
 
@@ -29,7 +31,20 @@ const itemFormValidators = [
     .escape()
     .isInt({ min: 0 })
     .withMessage('Number in stock must not be negative.'),
+  body('file_password')
+    .trim()
+    .escape()
+    .optional({ checkFalsy: true })
+    .custom((input) => input === 'abc')
+    .withMessage('Incorrect File Password'),
 ];
+
+const upload = multer({
+  dest: './public/data/uploads',
+  fileFilter: (req, file, cb) => {
+    cb(null, req.body.file_password === 'abc');
+  },
+});
 
 // items in category
 exports.item_list = (req, res, next) => {
@@ -98,10 +113,10 @@ exports.item_create_get = (req, res, next) => {
 };
 
 // handle item create form
-exports.item_create_post = [ // an array of validators and functions
+exports.item_create_post = [upload.single('uploaded_file'),
+  // an array of validators and functions
   // validate and sanitize fields
   [...itemFormValidators],
-  // TODO: image and password for image
   (req, res, next) => {
     const errors = validationResult(req);
     const priceCents = req.body.price * 100;
@@ -113,6 +128,7 @@ exports.item_create_post = [ // an array of validators and functions
       category: req.body.category,
       price_cents: priceCents,
       number_in_stock: req.body.number_in_stock,
+      image_path: (req.file) ? req.file.filename : 'none',
     });
 
     if (!errors.isEmpty()) {

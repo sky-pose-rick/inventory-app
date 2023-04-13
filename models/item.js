@@ -10,6 +10,7 @@ const ItemSchema = new Schema({
     type: Number, required: true, min: 0,
   },
   number_in_stock: { type: Number, required: true, min: 0 },
+  image_path: { type: String },
 });
 
 ItemSchema.virtual('price').get(function () {
@@ -19,10 +20,6 @@ ItemSchema.virtual('price').get(function () {
 
 ItemSchema.virtual('url').get(function () {
   return `/inventory/item/${this._id}`;
-});
-
-ItemSchema.virtual('image_path').get(function () {
-  return `/images/items/${this._id}`;
 });
 
 module.exports = mongoose.model('Item', ItemSchema);
