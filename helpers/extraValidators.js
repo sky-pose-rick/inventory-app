@@ -17,5 +17,11 @@ exports.authorizationValidator = body('authorization_password', 'Authorization P
   .withMessage('Incorrect Authorization Password');
 
 exports.makeFileFilter = (inputName) => (req, file, cb) => {
-  cb(null, req.body[inputName] === filePassword);
+  if (req.body[inputName] === filePassword) {
+    console.log('file upload accepted');
+    cb(null, true);
+  } else {
+    console.log('file upload rejected');
+    cb(null, false);
+  }
 };

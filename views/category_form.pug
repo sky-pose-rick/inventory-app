@@ -3,11 +3,18 @@ extends layout
 block content 
   h1= title 
 
-  form(method='POST' action='')
+  form(method='POST' action='' enctype='multipart/form-data')
     label Name: 
       input(type='text' placeholder='Name of category' required='true' name='name' value=(category===undefined ? '': category.name))
     label Descritpion
       textarea(type='textarea' placeholder='Desciption of category' required='true' name='description') #{category===undefined ? '': category.description}
+    if isUpdate 
+      label Authorization Password: 
+        input(type='password' name='authorization_password' required='true')
+    label Icon Password:
+      input(type='password' name='file_password')
+    label Icon: 
+      input(type='file' name='uploaded_file')
     button(type='submit') Submit
   if errors 
     ul 

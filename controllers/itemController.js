@@ -212,7 +212,7 @@ exports.item_update_post = [
   [...itemFormValidators],
   authorizationValidator,
   fileValidator,
-  // TODO: image and password for image
+
   (req, res, next) => {
     const errors = validationResult(req);
     const priceCents = req.body.price * 100;
@@ -240,6 +240,7 @@ exports.item_update_post = [
             title: 'Update Item',
             categories,
             item,
+            isUpdate: true,
             errors: errors.array(),
           });
         })
