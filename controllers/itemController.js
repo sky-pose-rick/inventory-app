@@ -1,5 +1,6 @@
 const { body, validationResult } = require('express-validator');
 const multer = require('multer');
+const { authorizationValidator, fileValidator, makeFileFilter } = require('../helpers/extraValidators');
 
 const Category = require('../models/category');
 const Item = require('../models/item');
@@ -31,19 +32,11 @@ const itemFormValidators = [
     .escape()
     .isInt({ min: 0 })
     .withMessage('Number in stock must not be negative.'),
-  body('file_password')
-    .trim()
-    .escape()
-    .optional({ checkFalsy: true })
-    .custom((input) => input === 'abc')
-    .withMessage('Incorrect File Password'),
 ];
 
 const upload = multer({
   dest: './public/data/uploads',
-  fileFilter: (req, file, cb) => {
-    cb(null, req.body.file_password === 'abc');
-  },
+  fileFilter: makeFileFilter('file_password'),
 });
 
 // items in category
@@ -113,10 +106,13 @@ exports.item_create_get = (req, res, next) => {
 };
 
 // handle item create form
-exports.item_create_post = [upload.single('uploaded_file'),
+exports.item_create_post = [
+  // upload file before checkig validators
+  upload.single('uploaded_file'),
   // an array of validators and functions
   // validate and sanitize fields
   [...itemFormValidators],
+  fileValidator,
   (req, res, next) => {
     const errors = validationResult(req);
     const priceCents = req.body.price * 100;
@@ -166,11 +162,26 @@ exports.item_delete_get = (req, res, next) => {
 };
 
 // handle item delete form
-exports.item_delete_post = (req, res, next) => {
-  Item.findByIdAndDelete(req.params.id)
-    .then(() => res.redirect('/inventory'))
-    .catch((err) => next(err));
-};
+exports.item_delete_post = [
+  authorizationValidator,
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      Item.findById(req.params.id)
+        .then((item) => {
+          res.render('item_delete', {
+            title: 'Delete Item',
+            item,
+            errors: errors.array(),
+          });
+        })
+        .catch((err) => next(err));
+      return;
+    }
+    Item.findByIdAndDelete(req.params.id)
+      .then(() => res.redirect('/inventory'))
+      .catch((err) => next(err));
+  }];
 
 // display item update form
 exports.item_update_get = (req, res, next) => {
@@ -187,6 +198,7 @@ exports.item_update_get = (req, res, next) => {
             title: 'Update Item',
             categories,
             item,
+            isUpdate: true,
           });
         })
         .catch((err) => next(err));
@@ -195,9 +207,11 @@ exports.item_update_get = (req, res, next) => {
 };
 
 // handle item update form
-exports.item_update_post = [ // an array of validators and functions
-// validate and sanitize fields
+exports.item_update_post = [
+  upload.single('uploaded_file'),
   [...itemFormValidators],
+  authorizationValidator,
+  fileValidator,
   // TODO: image and password for image
   (req, res, next) => {
     const errors = validationResult(req);
@@ -212,6 +226,10 @@ exports.item_update_post = [ // an array of validators and functions
       number_in_stock: req.body.number_in_stock,
       _id: req.params.id,
     });
+
+    if (req.file) {
+      item.image_path = req.file.filename;
+    }
 
     if (!errors.isEmpty()) {
     // has errors, re-render required
