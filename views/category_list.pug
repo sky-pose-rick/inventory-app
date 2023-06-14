@@ -1,14 +1,14 @@
 extends layout 
 
 block content 
-  h1 Choose a department
+  h1 Departments
 
-  ul 
+  ul#linkcollection 
     each category in category_list 
-      li
+      li.categoryrow
         a(href=category.item_list_url) #{category.name} 
         a(href=category.detail_url) More Details
 
     else 
       li There are no departments.
-  a(href='/inventory/category/create') Create new department
+  a.extralink(href='/inventory/category/create') Create new department
