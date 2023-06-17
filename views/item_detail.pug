@@ -2,6 +2,7 @@ extends layout
 
 block content 
   h1= title 
+  img.icon(src=`/data/uploads/${item.image_path}` alt='no icon')
   p Name: #{item.name}
   p Description: #{item.description}
   p Category: 
@@ -10,8 +11,6 @@ block content
   p Number in Stock: #{item.number_in_stock}
 
   p 
-    a(href=item.url+'/delete') Delete Item
+    a.extralink(href=item.url+'/delete') Delete Item
   p 
-    a(href=item.url+'/update') Update Item
-
-  img(src=`/data/uploads/${item.image_path}` alt='no icon')
+    a.extralink(href=item.url+'/update') Update Item

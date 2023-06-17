@@ -109,7 +109,7 @@ exports.category_delete_get = (req, res, next) => {
       Item.find({ category: category._id })
         .then((items) => {
           res.render('category_delete', {
-            title: 'Delete Item',
+            title: 'Delete Category',
             category,
             items,
           });

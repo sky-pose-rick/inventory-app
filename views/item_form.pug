@@ -4,7 +4,7 @@ block content
   h1= title 
 
   if item 
-    img(src=`/data/uploads/${item.image_path}` alt='no icon')
+    img.icon(src=`/data/uploads/${item.image_path}` alt='no icon')
 
   form(method='POST' action='' enctype='multipart/form-data')
     label Name: 
@@ -37,3 +37,11 @@ block content
     ul 
       for error in errors 
         li=error.msg
+
+  if item 
+    p
+      a.extralink(href=item.url) Back to Item Details
+    p
+      a.extralink(href=`/inventory/category/${item.category._id.toString()}/items`) Back to Item List
+  else if category
+    a.extralink(href=`/inventory/category/${category}/items`) Back to Item List

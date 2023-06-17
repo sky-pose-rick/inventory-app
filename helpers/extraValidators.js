@@ -1,4 +1,5 @@
 const { body } = require('express-validator');
+require('dotenv').config();
 
 const filePassword = process.env.SECRET_FILE_PASSWORD || 'abc';
 const authorizationPassword = process.env.SECRET_AUTHORIZATION_PASSWORD || 'xyz';

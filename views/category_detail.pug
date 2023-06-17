@@ -2,14 +2,14 @@ extends layout
 
 block content 
   h1= title 
+  img.icon(src=`/data/uploads/${category.image_path}` alt='no icon')
   p Name: #{category.name}
   p Description: #{category.description}
   p 
-    a(href=category.item_list_url) See items
+    a.extralink(href=category.item_list_url) See items
   p
-    a(href=`/inventory/item/${category._id}/create`) Create New Item
+    a.extralink(href=`/inventory/item/${category._id}/create`) Create New Item
   p
-    a(href=category.detail_url+'/delete') Delete Category
+    a.extralink(href=category.detail_url+'/delete') Delete Category
   p
-    a(href=category.detail_url+'/update') Update Category
-  img(src=`/data/uploads/${category.image_path}` alt='no icon')
+    a.extralink(href=category.detail_url+'/update') Update Category

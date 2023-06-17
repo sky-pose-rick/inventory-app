@@ -3,11 +3,13 @@ extends layout
 block content 
   h1 Items in #{category.name}
 
+  img.icon(src=`/data/uploads/${category.image_path}` alt='no icon')
+
   a(href=category.detail_url) About Department
 
-  ul 
+  ul#linkcollection
     each item in item_list 
-      li
+      li.categoryrow
         a(href=item.url) #{item.name} 
         span #{item.price}
 
@@ -15,4 +17,4 @@ block content
       li There are no items.
 
   p
-    a(href=`/inventory/item/${category._id}/create`) Create New Item
+    a.extralink(href=`/inventory/item/${category._id}/create`) Create New Item

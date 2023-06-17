@@ -7,10 +7,10 @@ block content
   p Description: #{category.description}
 
   if (items.length > 0) 
-    p This categoy has items. Delete those first.
-    ul 
+    p This category has items. Delete those first.
+    ul#linkcollection 
       for item in items
-        li 
+        li.categoryrow 
           a(href=item.url) #{item.name}
   else
     form(method='POST' action='')
@@ -21,3 +21,7 @@ block content
     ul 
       for error in errors 
         li=error.msg
+  p 
+    a.extralink(href=category.detail_url) Back to Category Details
+  p
+    a.extralink(href=category.item_list_url) Back to Item List

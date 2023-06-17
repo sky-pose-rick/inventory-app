@@ -3,6 +3,9 @@ extends layout
 block content 
   h1= title 
 
+  if category 
+     img.icon(src=`/data/uploads/${category.image_path}` alt='no icon')
+
   form(method='POST' action='' enctype='multipart/form-data')
     label Name: 
       input(type='text' placeholder='Name of category' required='true' name='name' value=(category===undefined ? '': category.name))
